@@ -1015,6 +1015,27 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
     if (_with_gui && _active_window) {
         document_fix(_active_window);
     }
+
+// #if EXPORTBYLAYERNAME
+    bool _export_by_layer_name = true;
+    char * _export_layer_name = "Layer 2";
+    if (_export_by_layer_name) {
+        auto layers = document->getResourceList("layer");
+
+        std::map<std::string, std::string> id_label_map;
+        for (auto &layer: layers) {
+            std::string label = layer->_label;
+            std::string id = layer->getId();
+            std::cout << "label: " << label << "\nid: " << id << std::endl;
+            id_label_map[label] = id;
+            // id_label_map.insert(std::make_pair(id, label));
+        }
+
+// TODO: 複数のファイルネームに対応する。
+        std::string layer_id = id_label_map[_export_layer_name];
+        _file_export.export_id = layer_id;
+    }
+// #endif
     // Only if --export-filename, --export-type --export-overwrite, or --export-use-hints are used.
     if (_auto_export) {
         // Save... can't use action yet.
