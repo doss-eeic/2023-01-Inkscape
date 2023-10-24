@@ -139,6 +139,9 @@ protected:
     bool _batch_process = false; // Temp
     bool _use_shell   = false;
     bool _use_pipe    = false;
+
+    bool _export_by_layer_name = false; /*追加*/
+
     bool _auto_export = false;
     int _pdf_poppler  = false;
     FontStrategy _pdf_font_strategy = FontStrategy::RENDER_MISSING;

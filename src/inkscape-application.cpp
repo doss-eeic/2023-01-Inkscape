@@ -751,6 +751,9 @@ InkscapeApplication::InkscapeApplication()
     gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-page",           '\0', N_("Page number to export"), N_("all|n[,a-b]"));
     gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-id",              'i', N_("ID(s) of object(s) to export"),                   N_("OBJECT-ID[;OBJECT-ID]*")); // BSP
     gapp->add_main_option_entry(T::OPTION_TYPE_BOOL,     "export-id-only",         'j', N_("Hide all objects except object with ID selected by export-id"),             ""); // BSx
+
+    gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-layer",          '\0', N_("Layer(s) of object(s) to export"),              N_("LAYER-NAME[;LAYER-NAME]*")); /*変更点*/
+
     gapp->add_main_option_entry(T::OPTION_TYPE_BOOL,     "export-plain-svg",       'l', N_("Remove Inkscape-specific SVG attributes/properties"),                       ""); // xSx
     gapp->add_main_option_entry(T::OPTION_TYPE_INT,      "export-ps-level",       '\0', N_("Postscript level (2 or 3); default is 3"),                         N_("LEVEL")); // xxP
     gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-pdf-version",    '\0', N_("PDF version (1.4 or 1.5); default is 1.5"),                      N_("VERSION")); // xxP
@@ -1017,8 +1020,8 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
     }
 
 // #if EXPORTBYLAYERNAME
-    bool _export_by_layer_name = true;
-    char * _export_layer_name = "Layer 2";
+    //bool _export_by_layer_name = true;
+    //char * _export_layer_name = "Layer 2";
     if (_export_by_layer_name) {
         auto layers = document->getResourceList("layer");
 
@@ -1560,6 +1563,9 @@ InkscapeApplication::on_handle_local_options(const Glib::RefPtr<Glib::VariantDic
 
         options->contains("export-id")             ||
         options->contains("export-id-only")        ||
+
+        options->contains("export-layer")          || /*変更点*/
+
         options->contains("export-plain-svg")      ||
         options->contains("export-ps-level")       ||
         options->contains("export-pdf-version")    ||
@@ -1591,6 +1597,9 @@ InkscapeApplication::on_handle_local_options(const Glib::RefPtr<Glib::VariantDic
         ) {
         _with_gui = false;
     }
+
+    //追加
+    if (options->contains("export-layer")) _export_by_layer_name = true;
 
     if (options->contains("with-gui")        ||
         options->contains("batch-process")
@@ -1776,6 +1785,11 @@ InkscapeApplication::on_handle_local_options(const Glib::RefPtr<Glib::VariantDic
     }
 
     if (options->contains("export-id-only"))      _file_export.export_id_only     = true;
+
+    if (options->contains("export-layer")) {
+        options->lookup_value("export-layer",        _file_export.export_layer);
+    } /*変更点*/
+
     if (options->contains("export-plain-svg"))    _file_export.export_plain_svg      = true;
 
     if (options->contains("export-dpi")) {

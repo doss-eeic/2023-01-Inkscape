@@ -79,6 +79,9 @@ public:
     Glib::ustring export_pdf_level;
     bool          export_latex;
     Glib::ustring export_id;
+
+    Glib::ustring export_layer;
+    
     bool          export_id_only;
     bool          export_use_hints;
     Glib::ustring export_background;
