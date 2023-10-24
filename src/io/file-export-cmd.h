@@ -78,6 +78,9 @@ public:
     int           export_ps_level;
     Glib::ustring export_pdf_level;
     bool          export_latex;
+#if 1
+    Glib::ustring export_layer_names;
+#endif
     Glib::ustring export_id;
     bool          export_id_only;
     bool          export_use_hints;

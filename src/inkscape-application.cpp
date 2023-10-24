@@ -1016,26 +1016,50 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
         document_fix(_active_window);
     }
 
-// #if EXPORTBYLAYERNAME
-    bool _export_by_layer_name = true;
-    char * _export_layer_name = "Layer 2";
-    if (_export_by_layer_name) {
+#if 1
+    _export_by_layer_label = true;
+
+    // NOTE: export_layer_names is a member of InkfileExportCmd class.
+// TODO: RENAME THIS IF IT ONLY ALLOWS ONE LAYER NAME.
+    _file_export.export_layer_names="Layer 2";
+
+/*
+複数のファイルネームのときはexportのファイルへのアウトプットがいまいちうまくいかない。
+    // Separates export_layer_names by ";" so that multiple layers can be exported.
+    std::vector<Glib::ustring> export_layer_name_lists = Glib::Regex::split_simple("\\s*;\\s*", _file_export.export_layer_names);
+*/
+
+    if (_export_by_layer_label) {
         auto layers = document->getResourceList("layer");
 
-        std::map<std::string, std::string> id_label_map;
+        std::map<std::string, std::string> label_id_map;
         for (auto &layer: layers) {
             std::string label = layer->_label;
             std::string id = layer->getId();
+            label_id_map.insert(std::make_pair(label,id));
+// TODO: delete the line below eventually.
             std::cout << "label: " << label << "\nid: " << id << std::endl;
-            id_label_map[label] = id;
-            // id_label_map.insert(std::make_pair(id, label));
-        }
 
-// TODO: 複数のファイルネームに対応する。
-        std::string layer_id = id_label_map[_export_layer_name];
-        _file_export.export_id = layer_id;
+        }
+        _file_export.export_id = label_id_map.at(_file_export.export_layer_names);
+/*
+複数のファイルネームのときはexportのファイルへのアウトプットがいまいちうまくいかない。
+        // Concatinates layer-ids with ";" as a separator so that multiple layers can be exported.
+        // initialize _file_export.export_id.
+// TODO: ideally users should be able to use both export-ids and layer-labels.
+        _file_export.export_id = "";
+        for (auto &layer_name: export_layer_name_lists) {
+            std::cout << "layer name" << layer_name << std::endl;
+            std::string layer_id = label_id_map.at(layer_name);
+            _file_export.export_id += layer_id;
+
+            if (&layer_name != &export_layer_name_lists.back()) {
+                _file_export.export_id += ";";
+            }
+        }
+*/
     }
-// #endif
+#endif
     // Only if --export-filename, --export-type --export-overwrite, or --export-use-hints are used.
     if (_auto_export) {
         // Save... can't use action yet.
