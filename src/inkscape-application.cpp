@@ -1021,18 +1021,11 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
     }
 
 #if 1
-    // _export_by_layer_label = true;
-
-    // NOTE: export_layer is a member of InkfileExportCmd class.
-// TODO: RENAME THIS IF IT ONLY ALLOWS ONE LAYER NAME.
-    // _file_export.export_layer="Layer 2";
-
 /*
 複数のファイルネームのときはexportのファイルへのアウトプットがいまいちうまくいかない。
     // Separates export_layer by ";" so that multiple layers can be exported.
     std::vector<Glib::ustring> export_layer_name_lists = Glib::Regex::split_simple("\\s*;\\s*", _file_export.export_layer);
 */
-
     if (_export_by_layer_label) {
         auto layers = document->getResourceList("layer");
 
