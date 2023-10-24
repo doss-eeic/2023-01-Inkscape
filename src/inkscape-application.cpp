@@ -1045,7 +1045,15 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
             std::cout << "label: " << label << "\nid: " << id << std::endl;
 
         }
-        _file_export.export_id = label_id_map.at(_file_export.export_layer);
+        try{
+            _file_export.export_id = label_id_map.at(_file_export.export_layer);
+
+        } catch (const std::out_of_range& ex) {
+            // when key is not found.
+            std::cerr << "Layername: " << _file_export.export_layer << " not found: " << ex.what() << std::endl;
+// TODO: rewrite exit(1) to proper procedure.
+            exit(1);
+        }
 /*
 複数のファイルネームのときはexportのファイルへのアウトプットがいまいちうまくいかない。
         // Concatinates layer-ids with ";" as a separator so that multiple layers can be exported.
