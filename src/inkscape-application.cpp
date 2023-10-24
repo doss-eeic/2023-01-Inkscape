@@ -751,6 +751,10 @@ InkscapeApplication::InkscapeApplication()
     gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-page",           '\0', N_("Page number to export"), N_("all|n[,a-b]"));
     gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-id",              'i', N_("ID(s) of object(s) to export"),                   N_("OBJECT-ID[;OBJECT-ID]*")); // BSP
     gapp->add_main_option_entry(T::OPTION_TYPE_BOOL,     "export-id-only",         'j', N_("Hide all objects except object with ID selected by export-id"),             ""); // BSx
+#if 1
+    gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-layer",          '\0', N_("Layer(s) of object(s) to export"),              N_("LAYER-NAME[;LAYER-NAME]*")); /*変更点*/
+#endif
+
     gapp->add_main_option_entry(T::OPTION_TYPE_BOOL,     "export-plain-svg",       'l', N_("Remove Inkscape-specific SVG attributes/properties"),                       ""); // xSx
     gapp->add_main_option_entry(T::OPTION_TYPE_INT,      "export-ps-level",       '\0', N_("Postscript level (2 or 3); default is 3"),                         N_("LEVEL")); // xxP
     gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-pdf-version",    '\0', N_("PDF version (1.4 or 1.5); default is 1.5"),                      N_("VERSION")); // xxP
@@ -1017,16 +1021,16 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
     }
 
 #if 1
-    _export_by_layer_label = true;
+    // _export_by_layer_label = true;
 
-    // NOTE: export_layer_names is a member of InkfileExportCmd class.
+    // NOTE: export_layer is a member of InkfileExportCmd class.
 // TODO: RENAME THIS IF IT ONLY ALLOWS ONE LAYER NAME.
-    _file_export.export_layer_names="Layer 2";
+    // _file_export.export_layer="Layer 2";
 
 /*
 複数のファイルネームのときはexportのファイルへのアウトプットがいまいちうまくいかない。
-    // Separates export_layer_names by ";" so that multiple layers can be exported.
-    std::vector<Glib::ustring> export_layer_name_lists = Glib::Regex::split_simple("\\s*;\\s*", _file_export.export_layer_names);
+    // Separates export_layer by ";" so that multiple layers can be exported.
+    std::vector<Glib::ustring> export_layer_name_lists = Glib::Regex::split_simple("\\s*;\\s*", _file_export.export_layer);
 */
 
     if (_export_by_layer_label) {
@@ -1041,7 +1045,7 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
             std::cout << "label: " << label << "\nid: " << id << std::endl;
 
         }
-        _file_export.export_id = label_id_map.at(_file_export.export_layer_names);
+        _file_export.export_id = label_id_map.at(_file_export.export_layer);
 /*
 複数のファイルネームのときはexportのファイルへのアウトプットがいまいちうまくいかない。
         // Concatinates layer-ids with ";" as a separator so that multiple layers can be exported.
@@ -1584,6 +1588,11 @@ InkscapeApplication::on_handle_local_options(const Glib::RefPtr<Glib::VariantDic
 
         options->contains("export-id")             ||
         options->contains("export-id-only")        ||
+
+#if 1
+        options->contains("export-layer")          || /*変更点*/
+#endif
+
         options->contains("export-plain-svg")      ||
         options->contains("export-ps-level")       ||
         options->contains("export-pdf-version")    ||
@@ -1615,6 +1624,10 @@ InkscapeApplication::on_handle_local_options(const Glib::RefPtr<Glib::VariantDic
         ) {
         _with_gui = false;
     }
+
+# if 1    //追加
+    if (options->contains("export-layer")) _export_by_layer_label = true;
+# endif
 
     if (options->contains("with-gui")        ||
         options->contains("batch-process")
@@ -1800,6 +1813,13 @@ InkscapeApplication::on_handle_local_options(const Glib::RefPtr<Glib::VariantDic
     }
 
     if (options->contains("export-id-only"))      _file_export.export_id_only     = true;
+
+#if 1
+    if (options->contains("export-layer")) {
+        options->lookup_value("export-layer",        _file_export.export_layer);
+    } /*変更点*/
+#endif
+
     if (options->contains("export-plain-svg"))    _file_export.export_plain_svg      = true;
 
     if (options->contains("export-dpi")) {
