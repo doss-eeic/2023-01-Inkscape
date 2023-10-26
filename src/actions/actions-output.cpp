@@ -128,7 +128,7 @@ export_layer(const Glib::VariantBase& value, InkscapeApplication *app)
     Glib::Variant<std::string> s = Glib::VariantBase::cast_dynamic<Glib::Variant<std::string> >(value);
     app->file_export()->export_layer = s.get();
     // std::cout << "export-layer: " << s.get() << std::endl;
-} /*変更点*/
+}
 
 void
 export_plain_svg(const Glib::VariantBase& value, InkscapeApplication *app)
@@ -273,7 +273,7 @@ std::vector<std::vector<Glib::ustring>> raw_data_output =
     {"app.export-id",                 N_("Export ID"),                 "Export",     N_("Export selected ID(s)")                              },
     {"app.export-id-only",            N_("Export ID Only"),            "Export",     N_("Hide any objects not given in export-id option")     },
 
-    {"app.export-layer",              N_("Export Layer"),              "Export",     N_("Export selected Layer(s)")                           },//変更点
+    {"app.export-layer",              N_("Export Layer"),              "Export",     N_("Export selected Layer(s)")                           },
 
     {"app.export-plain-svg",          N_("Export Plain SVG"),          "Export",     N_("Export as plain SVG")                                },
     {"app.export-dpi",                N_("Export DPI"),                "Export",     N_("Set export DPI")                                     },
@@ -312,7 +312,7 @@ std::vector<std::vector<Glib::ustring>> hint_data_output =
     {"app.export-id",                 N_("Enter string for export ID")                                   },
     {"app.export-id-only",            N_("Enter 1/0 for Yes/No to export only given ID")                 },
 
-    {"app.export-layer",              N_("Enter string for export Layer")                                }, /*変更点*/
+    {"app.export-layer",              N_("Enter string for export Layer")                                },
 
     {"app.export-plain-svg",          N_("Enter 1/0 for Yes/No to export plain SVG")                     },
     {"app.export-dpi",                N_("Enter integer number for export DPI")                          },
@@ -362,7 +362,7 @@ add_actions_output(InkscapeApplication* app)
     gapp->add_action_with_parameter( "export-id",                String, sigc::bind(sigc::ptr_fun(&export_id),           app));
     gapp->add_action_with_parameter( "export-id-only",           Bool,   sigc::bind(sigc::ptr_fun(&export_id_only),      app));
 
-    gapp->add_action_with_parameter( "export-layer",             String, sigc::bind(sigc::ptr_fun(&export_layer),        app)); /*変更点*/
+    gapp->add_action_with_parameter( "export-layer",             String, sigc::bind(sigc::ptr_fun(&export_layer),        app));
 
     gapp->add_action_with_parameter( "export-plain-svg",         Bool,   sigc::bind(sigc::ptr_fun(&export_plain_svg),    app));
     gapp->add_action_with_parameter( "export-dpi",               Double, sigc::bind(sigc::ptr_fun(&export_dpi),          app));

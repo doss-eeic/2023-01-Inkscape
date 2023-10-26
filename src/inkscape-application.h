@@ -135,9 +135,7 @@ public:
     int get_number_of_windows() const;
 
 protected:
-#if 1
     bool _export_by_layer_label = false;
-#endif
     bool _with_gui    = true;
     bool _batch_process = false; // Temp
     bool _use_shell   = false;

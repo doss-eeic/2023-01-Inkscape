@@ -751,9 +751,8 @@ InkscapeApplication::InkscapeApplication()
     gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-page",           '\0', N_("Page number to export"), N_("all|n[,a-b]"));
     gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-id",              'i', N_("ID(s) of object(s) to export"),                   N_("OBJECT-ID[;OBJECT-ID]*")); // BSP
     gapp->add_main_option_entry(T::OPTION_TYPE_BOOL,     "export-id-only",         'j', N_("Hide all objects except object with ID selected by export-id"),             ""); // BSx
-#if 1
-    gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-layer",          '\0', N_("Layer(s) of object(s) to export"),              N_("LAYER-NAME[;LAYER-NAME]*")); /*変更点*/
-#endif
+
+    gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-layer",          '\0', N_("Layer(s) of object(s) to export"),              N_("LAYER-NAME[;LAYER-NAME]*")); 
 
     gapp->add_main_option_entry(T::OPTION_TYPE_BOOL,     "export-plain-svg",       'l', N_("Remove Inkscape-specific SVG attributes/properties"),                       ""); // xSx
     gapp->add_main_option_entry(T::OPTION_TYPE_INT,      "export-ps-level",       '\0', N_("Postscript level (2 or 3); default is 3"),                         N_("LEVEL")); // xxP
@@ -1020,7 +1019,6 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
         document_fix(_active_window);
     }
 
-#if 1
     if (_export_by_layer_label) {
         // Separates export_layer by ";" so that multiple layers can be exported.
         std::vector<Glib::ustring> export_layer_label_lists = Glib::Regex::split_simple("\\s*;\\s*", _file_export.export_layer);
@@ -1032,9 +1030,6 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
             std::string label = layer->_label;
             std::string id = layer->getId();
             label_id_map.insert(std::make_pair(label,id));
-// TODO: delete the line below eventually.
-            std::cout << "label: " << label << "\nid: " << id << std::endl;
-
         }
 
         // Concatinates layer-ids with ";" as a separator so that multiple layers can be exported.
@@ -1046,7 +1041,7 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
             try{
                 _file_export.export_id += label_id_map.at(layer_label);
             } catch (const std::out_of_range& ex) {
-                std::cerr << "Layer label: '" << layer_label << "' not found.\r\nExport failed." << std::endl;
+                std::cerr << "Layer name: '" << layer_label << "' not found.\r\nExport failed." << std::endl;
                 return;
             }
 
@@ -1055,7 +1050,6 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
             }
         }
     }
-#endif
     // Only if --export-filename, --export-type --export-overwrite, or --export-use-hints are used.
     if (_auto_export) {
         // Save... can't use action yet.
@@ -1581,9 +1575,7 @@ InkscapeApplication::on_handle_local_options(const Glib::RefPtr<Glib::VariantDic
         options->contains("export-id")             ||
         options->contains("export-id-only")        ||
 
-#if 1
-        options->contains("export-layer")          || /*変更点*/
-#endif
+        options->contains("export-layer")          || 
 
         options->contains("export-plain-svg")      ||
         options->contains("export-ps-level")       ||
@@ -1617,9 +1609,7 @@ InkscapeApplication::on_handle_local_options(const Glib::RefPtr<Glib::VariantDic
         _with_gui = false;
     }
 
-# if 1    //追加
     if (options->contains("export-layer")) _export_by_layer_label = true;
-# endif
 
     if (options->contains("with-gui")        ||
         options->contains("batch-process")
@@ -1806,11 +1796,9 @@ InkscapeApplication::on_handle_local_options(const Glib::RefPtr<Glib::VariantDic
 
     if (options->contains("export-id-only"))      _file_export.export_id_only     = true;
 
-#if 1
     if (options->contains("export-layer")) {
         options->lookup_value("export-layer",        _file_export.export_layer);
-    } /*変更点*/
-#endif
+    }
 
     if (options->contains("export-plain-svg"))    _file_export.export_plain_svg      = true;
 
