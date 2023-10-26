@@ -1054,7 +1054,6 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
                 _file_export.export_id += ";";
             }
         }
-
     }
 #endif
     // Only if --export-filename, --export-type --export-overwrite, or --export-use-hints are used.
