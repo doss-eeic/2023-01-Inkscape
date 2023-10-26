@@ -1021,15 +1021,13 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
     }
 
 #if 1
-/*
-複数のファイルネームのときはexportのファイルへのアウトプットがいまいちうまくいかない。
-    // Separates export_layer by ";" so that multiple layers can be exported.
-    std::vector<Glib::ustring> export_layer_name_lists = Glib::Regex::split_simple("\\s*;\\s*", _file_export.export_layer);
-*/
     if (_export_by_layer_label) {
-        auto layers = document->getResourceList("layer");
+        // Separates export_layer by ";" so that multiple layers can be exported.
+        std::vector<Glib::ustring> export_layer_name_lists = Glib::Regex::split_simple("\\s*;\\s*", _file_export.export_layer);
 
+        auto layers = document->getResourceList("layer");
         std::map<std::string, std::string> label_id_map;
+
         for (auto &layer: layers) {
             std::string label = layer->_label;
             std::string id = layer->getId();
@@ -1038,31 +1036,26 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
             std::cout << "label: " << label << "\nid: " << id << std::endl;
 
         }
+
+
         try{
-            _file_export.export_id = label_id_map.at(_file_export.export_layer);
-
-        } catch (const std::out_of_range& ex) {
-            // when key is not found.
-            std::cerr << "Layername: " << _file_export.export_layer << " not found: " << ex.what() << std::endl;
-// TODO: rewrite exit(1) to proper procedure.
-            exit(1);
-        }
-/*
-複数のファイルネームのときはexportのファイルへのアウトプットがいまいちうまくいかない。
-        // Concatinates layer-ids with ";" as a separator so that multiple layers can be exported.
-        // initialize _file_export.export_id.
-// TODO: ideally users should be able to use both export-ids and layer-labels.
-        _file_export.export_id = "";
-        for (auto &layer_name: export_layer_name_lists) {
-            std::cout << "layer name" << layer_name << std::endl;
-            std::string layer_id = label_id_map.at(layer_name);
-            _file_export.export_id += layer_id;
-
-            if (&layer_name != &export_layer_name_lists.back()) {
+            // Concatinates layer-ids with ";" as a separator so that multiple layers can be exported.
+            // export_id is not empty when export_id is specified by the user.
+            if(_file_export.export_id != "") {
                 _file_export.export_id += ";";
             }
+            for (auto &layer_name: export_layer_name_lists) {
+                _file_export.export_id += label_id_map.at(layer_name);
+
+                if (&layer_name != &export_layer_name_lists.back()) {
+                    _file_export.export_id += ";";
+                }
+            }
+
+        } catch (const std::out_of_range& ex) {
+            std::cerr << "Layer label: " << _file_export.export_layer << " not found: " << ex.what() << std::endl;
+            return;
         }
-*/
     }
 #endif
     // Only if --export-filename, --export-type --export-overwrite, or --export-use-hints are used.
