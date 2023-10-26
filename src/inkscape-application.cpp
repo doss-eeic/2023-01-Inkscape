@@ -1023,7 +1023,7 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
 #if 1
     if (_export_by_layer_label) {
         // Separates export_layer by ";" so that multiple layers can be exported.
-        std::vector<Glib::ustring> export_layer_name_lists = Glib::Regex::split_simple("\\s*;\\s*", _file_export.export_layer);
+        std::vector<Glib::ustring> export_layer_label_lists = Glib::Regex::split_simple("\\s*;\\s*", _file_export.export_layer);
 
         auto layers = document->getResourceList("layer");
         std::map<std::string, std::string> label_id_map;
@@ -1037,25 +1037,24 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
 
         }
 
+        // Concatinates layer-ids with ";" as a separator so that multiple layers can be exported.
+        // export_id is not empty when export_id is specified by the user.
+        if(_file_export.export_id != "") {
+            _file_export.export_id += ";";
+        }
+        for (auto &layer_label: export_layer_label_lists) {
+            try{
+                _file_export.export_id += label_id_map.at(layer_label);
+            } catch (const std::out_of_range& ex) {
+                std::cerr << "Layer label: '" << layer_label << "' not found.\r\nExport failed." << std::endl;
+                return;
+            }
 
-        try{
-            // Concatinates layer-ids with ";" as a separator so that multiple layers can be exported.
-            // export_id is not empty when export_id is specified by the user.
-            if(_file_export.export_id != "") {
+            if (&layer_label != &export_layer_label_lists.back()) {
                 _file_export.export_id += ";";
             }
-            for (auto &layer_name: export_layer_name_lists) {
-                _file_export.export_id += label_id_map.at(layer_name);
-
-                if (&layer_name != &export_layer_name_lists.back()) {
-                    _file_export.export_id += ";";
-                }
-            }
-
-        } catch (const std::out_of_range& ex) {
-            std::cerr << "Layer label: " << _file_export.export_layer << " not found: " << ex.what() << std::endl;
-            return;
         }
+
     }
 #endif
     // Only if --export-filename, --export-type --export-overwrite, or --export-use-hints are used.
