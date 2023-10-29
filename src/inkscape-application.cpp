@@ -752,7 +752,8 @@ InkscapeApplication::InkscapeApplication()
     gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-id",              'i', N_("ID(s) of object(s) to export"),                   N_("OBJECT-ID[;OBJECT-ID]*")); // BSP
     gapp->add_main_option_entry(T::OPTION_TYPE_BOOL,     "export-id-only",         'j', N_("Hide all objects except object with ID selected by export-id"),             ""); // BSx
 
-    gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-layer",          '\0', N_("Layer(s) of object(s) to export"),              N_("LAYER-NAME[;LAYER-NAME]*")); 
+    gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-layer",          '\0', N_("Layer(s) of object(s) to export"),              N_("LAYER-NAME[;LAYER-NAME]*")); //BSP
+    gapp->add_main_option_entry(T::OPTION_TYPE_BOOL,     "export-all-layers",     '\0', N_("export all layers"),                                                        ""); // BSP
 
     gapp->add_main_option_entry(T::OPTION_TYPE_BOOL,     "export-plain-svg",       'l', N_("Remove Inkscape-specific SVG attributes/properties"),                       ""); // xSx
     gapp->add_main_option_entry(T::OPTION_TYPE_INT,      "export-ps-level",       '\0', N_("Postscript level (2 or 3); default is 3"),                         N_("LEVEL")); // xxP
@@ -1049,6 +1050,19 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
                 _file_export.export_id += ";";
             }
         }
+    }
+
+    if (_export_all_layers) {
+        auto layers = document->getResourceList("layer");
+
+        _file_export.export_id = "";
+        for (auto it = layers.begin(); it != layers.end(); ++it) {
+            _file_export.export_id += (*it)->getId();
+            if (std::next(it) != layers.end()) {
+                _file_export.export_id += ";";
+            }
+        }
+
     }
     // Only if --export-filename, --export-type --export-overwrite, or --export-use-hints are used.
     if (_auto_export) {
@@ -1576,6 +1590,7 @@ InkscapeApplication::on_handle_local_options(const Glib::RefPtr<Glib::VariantDic
         options->contains("export-id-only")        ||
 
         options->contains("export-layer")          || 
+        options->contains("export-all-layers")     ||
 
         options->contains("export-plain-svg")      ||
         options->contains("export-ps-level")       ||
