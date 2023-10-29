@@ -1019,7 +1019,7 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
         document_fix(_active_window);
     }
 
-    if (_export_by_layer_label) {
+    if (!_file_export.export_layer.empty()) {
         // Separates export_layer by ";" so that multiple layers can be exported.
         std::vector<Glib::ustring> export_layer_label_lists = Glib::Regex::split_simple("\\s*;\\s*", _file_export.export_layer);
 
@@ -1608,8 +1608,6 @@ InkscapeApplication::on_handle_local_options(const Glib::RefPtr<Glib::VariantDic
         ) {
         _with_gui = false;
     }
-
-    if (options->contains("export-layer")) _export_by_layer_label = true;
 
     if (options->contains("with-gui")        ||
         options->contains("batch-process")
