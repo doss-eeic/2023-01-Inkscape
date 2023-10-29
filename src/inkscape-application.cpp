@@ -1052,7 +1052,7 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
         }
     }
 
-    if (_export_all_layers) {
+    if (_file_export.export_all_layers) {
         auto layers = document->getResourceList("layer");
 
         _file_export.export_id = "";
@@ -1812,6 +1812,8 @@ InkscapeApplication::on_handle_local_options(const Glib::RefPtr<Glib::VariantDic
     if (options->contains("export-layer")) {
         options->lookup_value("export-layer",        _file_export.export_layer);
     }
+
+    if (options->contains("export-all-layers"))    _file_export.export_all_layers  = true;
 
     if (options->contains("export-plain-svg"))    _file_export.export_plain_svg      = true;
 

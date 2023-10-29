@@ -80,6 +80,7 @@ public:
     bool          export_latex;
 
     Glib::ustring export_layer;
+    bool          export_all_layers =false;
 
     Glib::ustring export_id;
     
