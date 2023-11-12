@@ -751,6 +751,10 @@ InkscapeApplication::InkscapeApplication()
     gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-page",           '\0', N_("Page number to export"), N_("all|n[,a-b]"));
     gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-id",              'i', N_("ID(s) of object(s) to export"),                   N_("OBJECT-ID[;OBJECT-ID]*")); // BSP
     gapp->add_main_option_entry(T::OPTION_TYPE_BOOL,     "export-id-only",         'j', N_("Hide all objects except object with ID selected by export-id"),             ""); // BSx
+
+    gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-layer",          '\0', N_("Layer(s) of object(s) to export"),              N_("LAYER-NAME[;LAYER-NAME]*")); //BSP
+    gapp->add_main_option_entry(T::OPTION_TYPE_BOOL,     "export-all-layers",     '\0', N_("export all layers"),                                                        ""); // BSP
+
     gapp->add_main_option_entry(T::OPTION_TYPE_BOOL,     "export-plain-svg",       'l', N_("Remove Inkscape-specific SVG attributes/properties"),                       ""); // xSx
     gapp->add_main_option_entry(T::OPTION_TYPE_INT,      "export-ps-level",       '\0', N_("Postscript level (2 or 3); default is 3"),                         N_("LEVEL")); // xxP
     gapp->add_main_option_entry(T::OPTION_TYPE_STRING,   "export-pdf-version",    '\0', N_("PDF version (1.4 or 1.5); default is 1.5"),                      N_("VERSION")); // xxP
@@ -1014,6 +1018,51 @@ InkscapeApplication::process_document(SPDocument* document, std::string output_p
     }
     if (_with_gui && _active_window) {
         document_fix(_active_window);
+    }
+
+    if (!_file_export.export_layer.empty()) {
+        // Separates export_layer by ";" so that multiple layers can be exported.
+        std::vector<Glib::ustring> export_layer_label_lists = Glib::Regex::split_simple("\\s*;\\s*", _file_export.export_layer);
+
+        auto layers = document->getResourceList("layer");
+        std::map<std::string, std::string> label_id_map;
+
+        for (auto &layer: layers) {
+            std::string label = layer->_label;
+            std::string id = layer->getId();
+            label_id_map.insert(std::make_pair(label,id));
+        }
+
+        // Concatinates layer-ids with ";" as a separator so that multiple layers can be exported.
+        // export_id is not empty when export_id is specified by the user.
+        if(_file_export.export_id != "") {
+            _file_export.export_id += ";";
+        }
+        for (auto &layer_label: export_layer_label_lists) {
+            try{
+                _file_export.export_id += label_id_map.at(layer_label);
+            } catch (const std::out_of_range& ex) {
+                std::cerr << "Layer name: '" << layer_label << "' not found.\r\nExport failed." << std::endl;
+                return;
+            }
+
+            if (&layer_label != &export_layer_label_lists.back()) {
+                _file_export.export_id += ";";
+            }
+        }
+    }
+
+    if (_file_export.export_all_layers) {
+        auto layers = document->getResourceList("layer");
+
+        _file_export.export_id = "";
+        for (auto it = layers.begin(); it != layers.end(); ++it) {
+            _file_export.export_id += (*it)->getId();
+            if (std::next(it) != layers.end()) {
+                _file_export.export_id += ";";
+            }
+        }
+
     }
     // Only if --export-filename, --export-type --export-overwrite, or --export-use-hints are used.
     if (_auto_export) {
@@ -1539,6 +1588,10 @@ InkscapeApplication::on_handle_local_options(const Glib::RefPtr<Glib::VariantDic
 
         options->contains("export-id")             ||
         options->contains("export-id-only")        ||
+
+        options->contains("export-layer")          || 
+        options->contains("export-all-layers")     ||
+
         options->contains("export-plain-svg")      ||
         options->contains("export-ps-level")       ||
         options->contains("export-pdf-version")    ||
@@ -1755,6 +1808,13 @@ InkscapeApplication::on_handle_local_options(const Glib::RefPtr<Glib::VariantDic
     }
 
     if (options->contains("export-id-only"))      _file_export.export_id_only     = true;
+
+    if (options->contains("export-layer")) {
+        options->lookup_value("export-layer",        _file_export.export_layer);
+    }
+
+    if (options->contains("export-all-layers"))    _file_export.export_all_layers  = true;
+
     if (options->contains("export-plain-svg"))    _file_export.export_plain_svg      = true;
 
     if (options->contains("export-dpi")) {

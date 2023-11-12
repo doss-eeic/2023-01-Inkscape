@@ -78,7 +78,12 @@ public:
     int           export_ps_level;
     Glib::ustring export_pdf_level;
     bool          export_latex;
+
+    Glib::ustring export_layer;
+    bool          export_all_layers =false;
+
     Glib::ustring export_id;
+    
     bool          export_id_only;
     bool          export_use_hints;
     Glib::ustring export_background;
